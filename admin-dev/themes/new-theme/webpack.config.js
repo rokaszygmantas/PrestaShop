@@ -78,6 +78,9 @@ let config = {
     ],
     payment_preferences: [
       './js/pages/payment-preferences'
+    ],
+    translation_settings: [
+        './js/pages/translation-settings'
     ]
   },
   output: {
