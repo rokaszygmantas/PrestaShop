@@ -170,6 +170,7 @@ class TranslationsController extends FrameworkBundleAdminController
             'help_link' => $this->generateSidebarLink($legacyController),
             'kpiRow' => $kpiRowFactory->build(),
             'modifyTranslationsForm' => $modifyTranslationsForm->createView(),
+            'isAddUpdateLanguageDisabled' => $addUpdateLanguageForm->isDisabled(),
             'addUpdateLanguageForm' => $addUpdateLanguageForm->createView()
         ];
     }
@@ -180,6 +181,8 @@ class TranslationsController extends FrameworkBundleAdminController
      * @AdminSecurity("is_granted('read', request.get('_legacy_controller')~'_')", message="Access denied.")
      *
      * @param Request $request
+     *
+     * @return RedirectResponse
      */
     public function modifyTranslationsAction(Request $request)
     {
