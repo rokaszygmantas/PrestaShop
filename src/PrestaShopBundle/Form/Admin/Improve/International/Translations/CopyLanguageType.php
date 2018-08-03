@@ -30,48 +30,56 @@ use PrestaShop\PrestaShop\Core\Form\FormChoiceProviderInterface;
 use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
- * Class AddUpdateLanguageType is responsible for building add / update language form
+ * Class CopyLanguageType is responsible for building 'Copy' form
  * in 'Improve > International > Translations' page
  */
-class AddUpdateLanguageType extends TranslatorAwareType
+class CopyLanguageType extends TranslatorAwareType
 {
     /**
      * @var FormChoiceProviderInterface
      */
-    private $nonInstalledLocalizationChoiceProvider;
+    private $themeChoiceProvider;
 
+    /**
+     * @param TranslatorInterface $translator
+     * @param array $locales
+     * @param FormChoiceProviderInterface $themeChoiceProvider
+     */
     public function __construct(
         TranslatorInterface $translator,
         array $locales,
-        FormChoiceProviderInterface $nonInstalledLocalizationChoiceProvider
+        FormChoiceProviderInterface $themeChoiceProvider
     ) {
         parent::__construct($translator, $locales);
-        $this->nonInstalledLocalizationChoiceProvider = $nonInstalledLocalizationChoiceProvider;
+
+        $this->locales = $locales;
+        $this->themeChoiceProvider = $themeChoiceProvider;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $installedLocales = $this->getLocaleChoices();
-        $nonInstalledLocales = $this->nonInstalledLocalizationChoiceProvider->getChoices();
+        $themeChoices = $this->themeChoiceProvider->getChoices();
 
-        $builder->add('iso_localization_pack', ChoiceType::class, [
-            'choices' => [
-                'Update a language' => $installedLocales,
-                'Add a language' => $nonInstalledLocales,
-            ],
-        ]);
-
-        $builder->setDisabled(empty($installedLocales) && empty($nonInstalledLocales));
-    }
-
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'translation_domain' => 'Admin.International.Feature'
-        ]);
+        $builder
+            ->add('from_language', ChoiceType::class, [
+                'label' => $this->trans('From', 'Admin.Global'),
+                'choices' => $this->getLocaleChoices(),
+            ])
+            ->add('from_theme', ChoiceType::class, [
+                'choices' => $themeChoices,
+            ])
+            ->add('to_language', ChoiceType::class, [
+                'choices' => $this->getLocaleChoices(),
+            ])
+            ->add('to_theme', ChoiceType::class, [
+                'choices' => $themeChoices,
+            ])
+        ;
     }
 }

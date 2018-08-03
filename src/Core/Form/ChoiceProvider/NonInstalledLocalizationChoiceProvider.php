@@ -31,6 +31,7 @@ use PrestaShop\PrestaShop\Adapter\Language\LanguageValidator;
 use PrestaShop\PrestaShop\Core\Form\FormChoiceProviderInterface;
 use PrestaShop\PrestaShop\Core\Language\Pack\Loader\LanguagePackLoaderInterface;
 
+
 /**
  * Class NonInstalledLocalizationChoiceProvider is responsible for getting one part of choices to use
  * in 'Improve > International > Translations' page Add / Update a language form type.
@@ -55,7 +56,6 @@ class NonInstalledLocalizationChoiceProvider implements FormChoiceProviderInterf
         LanguageValidator $languageValidator,
         LanguageDataProvider $languageProvider
     ) {
-
         $this->languageValidator = $languageValidator;
         $this->languagePackLoader = $languagePackLoader;
         $this->languageProvider = $languageProvider;
