@@ -28,6 +28,7 @@ namespace PrestaShopBundle\Controller\Admin;
 
 
 use Exception;
+use PrestaShop\PrestaShop\Core\Language\Export\Config\LanguageExporterConfig;
 use PrestaShopBundle\Form\Admin\Improve\International\Translations\AddUpdateLanguageType;
 use PrestaShopBundle\Form\Admin\Improve\International\Translations\CopyLanguageType;
 use PrestaShopBundle\Form\Admin\Improve\International\Translations\ExportLanguageType;
@@ -125,31 +126,6 @@ class TranslationsController extends FrameworkBundleAdminController
     }
 
     /**
-     * Extract theme using locale and theme name.
-     *
-     * @param Request $request
-     * @return BinaryFileResponse
-     */
-    public function exportThemeAction(Request $request)
-    {
-        $themeName = $request->request->get('theme-name');
-        $isoCode = $request->request->get('iso_code');
-
-        $langRepository = $this->get('prestashop.core.admin.lang.repository');
-        $locale = $langRepository->getLocaleByIsoCode($isoCode);
-
-        $themeExporter = $this->get('prestashop.translation.theme.exporter');
-        $zipFile = $themeExporter->createZipArchive($themeName, $locale, _PS_ROOT_DIR_.DIRECTORY_SEPARATOR);
-
-        $response = new BinaryFileResponse($zipFile);
-        $response->deleteFileAfterSend(true);
-
-        $themeExporter->cleanArtifacts($themeName);
-
-        return $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT);
-    }
-
-    /**
      * Show translations settings page
      *
      * @Template("@PrestaShop/Admin/Improve/International/Translations/translations_settings.html.twig")
@@ -239,6 +215,38 @@ class TranslationsController extends FrameworkBundleAdminController
             }
         }
 
+        return $this->redirectToRoute('admin_international_translations_show_settings');
+    }
+
+    /**
+     * Extract theme using locale and theme name.
+     *
+     * @param Request $request
+     * @return BinaryFileResponse|RedirectResponse
+     */
+    public function exportThemeLanguageAction(Request $request)
+    {
+        $exportThemeLanguageForm = $this->createForm(ExportLanguageType::class);
+        $exportThemeLanguageForm->handleRequest($request);
+
+        if ($exportThemeLanguageForm->isSubmitted()) {
+            $data = $exportThemeLanguageForm->getData();
+
+            $themeName = $data['theme_name'];
+            $isoCode = $data['iso_code'];
+
+            $langRepository = $this->get('prestashop.core.admin.lang.repository');
+            $locale = $langRepository->getLocaleByIsoCode($isoCode);
+
+            $themeExporter = $this->get('prestashop.translation.theme.exporter');
+            $zipFile = $themeExporter->createZipArchive($themeName, $locale, _PS_ROOT_DIR_.DIRECTORY_SEPARATOR);
+
+            $response = new BinaryFileResponse($zipFile);
+            $response->deleteFileAfterSend(true);
+
+            $themeExporter->cleanArtifacts($themeName);
+            return $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT);
+        }
         return $this->redirectToRoute('admin_international_translations_show_settings');
     }
 }
