@@ -151,7 +151,6 @@ class TranslationsController extends FrameworkBundleAdminController
             'help_link' => $this->generateSidebarLink($legacyController),
             'kpiRow' => $kpiRowFactory->build(),
             'modifyTranslationsForm' => $modifyTranslationsForm->createView(),
-            'isAddUpdateLanguageDisabled' => $addUpdateLanguageForm->isDisabled(),
             'addUpdateLanguageForm' => $addUpdateLanguageForm->createView(),
             'exportLanguageForm' => $exportLanguageForm->createView(),
             'copyLanguageForm' => $copyLanguageForm->createView(),
@@ -219,7 +218,7 @@ class TranslationsController extends FrameworkBundleAdminController
     }
 
     /**
-     * Extract theme using locale and theme name.
+     * Extracts themes language files in an archive using locale and theme name action.
      *
      * @param Request $request
      *
