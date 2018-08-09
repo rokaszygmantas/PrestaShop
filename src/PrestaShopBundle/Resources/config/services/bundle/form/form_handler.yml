@@ -209,3 +209,13 @@ services:
             -
               'payment_module_preferences': 'PrestaShopBundle\Form\Admin\Improve\Payment\Preferences\PaymentModulePreferencesType'
             - 'PaymentPreferences'
+
+    prestashop.admin.translations.copy_language.form_handler:
+        class: 'PrestaShop\PrestaShop\Core\Form\FormHandler'
+        arguments:
+            - '@=service("form.factory").createBuilder()'
+            - '@prestashop.hook.dispatcher'
+            - '@prestashop.admin.translations.copy_language.data_provider'
+            -
+              'copy_language': 'PrestaShopBundle\Form\Admin\Improve\International\Translations\CopyLanguageType'
+            - 'CopyLanguage'

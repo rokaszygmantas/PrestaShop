@@ -142,8 +142,8 @@ class TranslationsController extends FrameworkBundleAdminController
         $kpiRowFactory = $this->get('prestashop.core.kpi_row.factory.translations_page');
         $modifyTranslationsForm = $this->createForm(ModifyTranslationsType::class);
         $addUpdateLanguageForm = $this->createForm(AddUpdateLanguageType::class);
-        $copyLanguageForm = $this->createForm(CopyLanguageType::class);
         $exportLanguageForm = $this->createForm(ExportThemeLanguageType::class);
+        $copyLanguageForm = $this->get('prestashop.admin.translations.copy_language.form_handler')->getForm();
 
         return [
             'layoutTitle' => $this->trans('Translations', 'Admin.Navigation.Menu'),
@@ -239,14 +239,45 @@ class TranslationsController extends FrameworkBundleAdminController
             $locale = $langRepository->getLocaleByIsoCode($isoCode);
 
             $themeExporter = $this->get('prestashop.translation.theme.exporter');
-            $zipFile = $themeExporter->createZipArchive($themeName, $locale, _PS_ROOT_DIR_.DIRECTORY_SEPARATOR);
+            $zipFile = $themeExporter->createZipArchive($themeName, $locale, _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR);
 
             $response = new BinaryFileResponse($zipFile);
             $response->deleteFileAfterSend($shouldDelete = true);
 
             $themeExporter->cleanArtifacts($themeName);
+
             return $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT);
         }
+
+        return $this->redirectToRoute('admin_international_translations_show_settings');
+    }
+
+    /**
+     * Copy language action
+     *
+     * @AdminSecurity("is_granted('create', request.get('_legacy_controller')~'_')", message="You do not have permission to add this.")
+     *
+     * @param Request $request
+     *
+     * @return RedirectResponse
+     */
+    public function copyLanguageAction(Request $request)
+    {
+        $formHandler = $this->get('prestashop.admin.translations.copy_language.form_handler');
+        $form = $formHandler->getForm();
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            if ($errors = $formHandler->save($form->getData())) {
+                $this->flashErrors($errors);
+            } else {
+                $this->addFlash(
+                    'success',
+                    $this->trans('The translation was successfully copied.', 'Admin.International.Notification')
+                );
+            }
+        }
+
         return $this->redirectToRoute('admin_international_translations_show_settings');
     }
 }
